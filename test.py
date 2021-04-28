@@ -63,3 +63,12 @@ def train_model(model, train_input, train_target, mini_batch_size):
 
         if e % 20 == 0:
             print(e, acc_loss)
+
+def mnist_to_pairs(nb, input, target):
+    input = torch.functional.F.avg_pool2d(input, kernel_size = 2)
+    a = torch.randperm(input.size(0))
+    a = a[:2 * nb].view(nb, 2)
+    input = torch.cat((input[a[:, 0]], input[a[:, 1]]), 1)
+    classes = target[a]
+    target = (classes[:, 0] <= classes[:, 1]).long()
+    return input, target, classes
