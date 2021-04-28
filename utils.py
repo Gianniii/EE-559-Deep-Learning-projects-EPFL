@@ -1,4 +1,5 @@
 import os
+import torch
 from torchvision import datasets
 
 def mnist_to_pairs(nb, input, target):

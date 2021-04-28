@@ -1,4 +1,7 @@
 import torch
+from models import *
+from torch import nn
+from utils import generate_pair_sets
 from torch import optim
 
 
@@ -20,20 +23,22 @@ def train_model(model, train_input, train_target, mini_batch_size):
     optimizer = optim.SGD(model.parameters(), lr = 1e-1)
     for e in range(nb_epochs):
         # We do this with mini-batches
+        acc_loss = 0
         for b in range(0, train_input.size(0), mini_batch_size):
             output = model(train_input.narrow(0, b, mini_batch_size))
             loss = criterion(output, train_target.narrow(0, b, mini_batch_size))
+            acc_loss += loss.item()
 
             model.zero_grad()
             loss.backward()
             optimizer.step()
-
+        print(e, acc_loss)
 
 
 train_input, train_target, train_classes, test_input, \
 test_target, test_classes = generate_pair_sets(1000)
 
-model = NeuralNet()
+model = BasicNN()
 train_model(model, train_input, train_target, mini_batch_size)
-n = compute_nb_errors(model, test_input, test_target, mini_batch_size )
+n = compute_nb_errors(model, test_input, test_target, mini_batch_size)
 print(n)
