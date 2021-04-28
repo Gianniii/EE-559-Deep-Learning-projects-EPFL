@@ -32,6 +32,7 @@ class NeuralNet(nn.Module):
         x = self.fc3(x.view(-1, 50))
         return x
 
+#cool
 criterion = nn.CrossEntropyLoss()
 eta, mini_batch_size = 1e-1, 100
 nb_epochs = 25
