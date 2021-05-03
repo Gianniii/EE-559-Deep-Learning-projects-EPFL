@@ -42,6 +42,8 @@ class CNN(nn.Module):
         #print("e", x.size())
         return x
 
+
+#THIS MODEL TAKES MORE THEN 2 SECONDS TO TRAIN!! NEED TO FIND WAYS TO SPEED IT UP!!!
 #Do add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
 class CNN_AUX(nn.Module):
     def __init__(self):

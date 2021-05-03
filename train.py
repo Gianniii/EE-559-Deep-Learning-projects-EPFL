@@ -24,4 +24,4 @@ def train_model_with_auxiliary_loss(model, train_input, train_target, train_clas
             model.zero_grad()
             loss.backward()
             optimizer.step()
-        print(e, loss.item())
+        #print(e, loss.item())
