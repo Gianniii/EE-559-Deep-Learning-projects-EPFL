@@ -44,6 +44,7 @@ class CNN(nn.Module):
 
 
 #THIS MODEL TAKES MORE THEN 2 SECONDS TO TRAIN!! NEED TO FIND WAYS TO SPEED IT UP!!!
+#TODO try leakyrelu, sigmoid, adding dropout, add weight sharing through siamese network, playing with kernel sizes ect.. and different optimizer functions too
 #Do add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
 class CNN_AUX(nn.Module):
     def __init__(self):
