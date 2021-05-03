@@ -51,5 +51,5 @@ test_target, test_classes = generate_pair_sets(1000)
 
 model = CNN_AUX()
 train_model_with_auxiliary_loss(model, train_input, train_target, train_classes, mini_batch_size)
-n = compute_nb_errors(model, test_input, test_target, mini_batch_size, False)
+n = compute_nb_errors(model, test_input, test_target, mini_batch_size, True)
 print(n)
