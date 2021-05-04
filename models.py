@@ -45,7 +45,7 @@ class CNN(nn.Module):
 
 #THIS MODEL TAKES MORE THEN 2 SECONDS TO TRAIN!! NEED TO FIND WAYS TO SPEED IT UP!!!
 #TODO try leakyrelu, sigmoid, adding, add weight sharing through siamese network, playing with kernel sizes ect.. and different optimizer functions too
-#Do add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
+#add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
 class CNN_AUX(nn.Module):
     def __init__(self):
         super().__init__()
@@ -64,11 +64,10 @@ class CNN_AUX(nn.Module):
 
         #layer to learn how to compare the two digits
         self.fc_compare = nn.Linear(20, 2)
-        #self.fc_compare = nn.Linear(10, 2)
 
 
     def forward(self, xy):
-        #seprate images
+        #seperate images
         x = xy.narrow(1, 0, 1)
         y = xy.narrow(1, 1, 1)
 
@@ -92,5 +91,4 @@ class CNN_AUX(nn.Module):
         #contactenate "two images" together
         z = torch.cat((x,y), 1)
         z = self.fc_compare(z)
-        #z = self.fc_compare2(z)
         return x, y ,z
