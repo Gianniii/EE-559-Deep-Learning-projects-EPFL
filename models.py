@@ -43,21 +43,21 @@ class CNN(nn.Module):
         return x
 
 
-#THIS MODEL TAKES MORE THEN 2 SECONDS TO TRAIN!! NEED TO FIND WAYS TO SPEED IT UP!!!
+#THIS MODEL TAKES MORE THEN 2 SECONDS TO TRAIN!! NEED TO FIND WAYS TO SPEED IT UP!!!, siamese network might increase the speed, also reducing number of parameters to approx 70k
 #TODO try leakyrelu, sigmoid, adding, add weight sharing through siamese network, playing with kernel sizes ect.. and different optimizer functions too
 #add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
 class CNN_AUX(nn.Module):
-    def __init__(self):
+    def __init__(self, nb_hidden = 16):
         super().__init__()
         self.conv11 = nn.Conv2d(1, 32, kernel_size = 5)
         self.conv12 = nn.Conv2d(32, 64, kernel_size = 3)
-        self.fc11 = nn.Linear(256, 100)
-        self.fc12 = nn.Linear(100, 10)
+        self.fc11 = nn.Linear(256, nb_hidden)
+        self.fc12 = nn.Linear(nb_hidden, 10)
 
         self.conv21 = nn.Conv2d(1, 32, kernel_size = 5)
         self.conv22 = nn.Conv2d(32, 64, kernel_size = 3)
-        self.fc21 = nn.Linear(256, 100)
-        self.fc22 = nn.Linear(100, 10)
+        self.fc21 = nn.Linear(256, nb_hidden)
+        self.fc22 = nn.Linear(nb_hidden, 10)
         
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(64)
