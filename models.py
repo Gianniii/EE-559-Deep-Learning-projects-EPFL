@@ -44,7 +44,7 @@ class CNN(nn.Module):
 
 
 #THIS MODEL TAKES MORE THEN 2 SECONDS TO TRAIN!! NEED TO FIND WAYS TO SPEED IT UP!!!
-#TODO try leakyrelu, sigmoid, adding dropout, add weight sharing through siamese network, playing with kernel sizes ect.. and different optimizer functions too
+#TODO try leakyrelu, sigmoid, adding, add weight sharing through siamese network, playing with kernel sizes ect.. and different optimizer functions too
 #Do add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
 class CNN_AUX(nn.Module):
     def __init__(self):
@@ -67,7 +67,6 @@ class CNN_AUX(nn.Module):
         #self.fc_compare = nn.Linear(10, 2)
 
 
-
     def forward(self, xy):
         #seprate images
         x = xy.narrow(1, 0, 1)
@@ -78,7 +77,6 @@ class CNN_AUX(nn.Module):
         x = self.bn1(x)
         x = F.relu(F.max_pool2d(self.conv12(x), kernel_size = 2, stride = 1))
         x = self.bn2(x)
-
         
         y = F.relu(F.max_pool2d(self.conv21(y), kernel_size = 2, stride = 2))
         y = self.bn1(y)
