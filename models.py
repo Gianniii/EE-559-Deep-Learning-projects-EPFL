@@ -47,7 +47,7 @@ class CNN(nn.Module):
 #TODO try leakyrelu, sigmoid, adding, add weight sharing through siamese network, playing with kernel sizes ect.. and different optimizer functions too
 #add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
 class CNN_AUX(nn.Module):
-    def __init__(self, nb_hidden = 16):
+    def __init__(self, nb_hidden = 64):
         super().__init__()
         self.conv11 = nn.Conv2d(1, 32, kernel_size = 5)
         self.conv12 = nn.Conv2d(32, 64, kernel_size = 3)
@@ -87,6 +87,40 @@ class CNN_AUX(nn.Module):
 
         y = F.relu(self.fc21(y.view(-1, 256)))
         y = F.relu(self.fc22(y))
+
+        #contactenate "two images" together
+        z = torch.cat((x,y), 1)
+        z = self.fc_compare(z)
+        return x, y ,z
+
+class SIAMESE_CNN_AUX(nn.Module):
+    def __init__(self, nb_hidden = 64):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size = 5)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size = 3)
+        self.fc11 = nn.Linear(256, nb_hidden)
+        self.fc12 = nn.Linear(nb_hidden, 10)
+        
+        self.bn1 = nn.BatchNorm2d(32)
+        self.bn2 = nn.BatchNorm2d(64)
+
+        #layer to learn how to compare the two digits
+        self.fc_compare = nn.Linear(20, 2)
+
+    def foward_once(self, x):
+        x = F.relu(F.max_pool2d(self.conv1(x), kernel_size = 2, stride = 2))
+        x = self.bn1(x)
+        x = F.relu(F.max_pool2d(self.conv2(x), kernel_size = 2, stride = 1))
+        x = self.bn2(x)
+
+        x = F.relu(self.fc11(x.view(-1, 256)))
+        x = F.relu(self.fc12(x))
+        return x
+
+    def forward(self, xy):
+
+        x = self.foward_once(xy.narrow(1, 0, 1))
+        y = self.foward_once(xy.narrow(1, 1, 1))
 
         #contactenate "two images" together
         z = torch.cat((x,y), 1)
