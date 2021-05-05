@@ -93,6 +93,7 @@ class CNN_AUX(nn.Module):
         z = self.fc_compare(z)
         return x, y ,z
 
+#TODO better perfomance but still slow, perhaps play with number of convolutions 3 instead of 2, and play with the parameters of the convolutoions and size of connected layers
 class SIAMESE_CNN_AUX(nn.Module):
     def __init__(self, nb_hidden = 64):
         super().__init__()
@@ -118,7 +119,7 @@ class SIAMESE_CNN_AUX(nn.Module):
         return x
 
     def forward(self, xy):
-
+        #weight sharing between two subnetworks
         x = self.foward_once(xy.narrow(1, 0, 1))
         y = self.foward_once(xy.narrow(1, 1, 1))
 
