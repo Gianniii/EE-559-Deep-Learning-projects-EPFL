@@ -16,11 +16,12 @@ def generate_data(n, center, radius):
     
     temp_tensor = random_tensor.sub(center).pow(2).sum(1)
     target_tensor = torch.where(temp_tensor < radius_sq, 1, 0)
+    
     return random_tensor, target_tensor
 
 n = 1000
 center = 0.5
-radius = 1 / (2 * math.pi)
+radius = 1 / math.sqrt((2 * math.pi))
 
 train_data, train_target = generate_data(n, center, radius)
 test_data, test_target = generate_data(n, center, radius)
