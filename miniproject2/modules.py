@@ -82,15 +82,11 @@ class ReLU(Module):
 
 
 class Tanh(Module):
-    def __init__(self):
-
-    def forward(self):
-
-    def backward(self):
-
-    def param(self):
-
-
+    def forward(self, x):
+        self.x = x
+        return x.tanh()
+    def backward(self, dl_dout):
+        return 4.0 * (self.x.exp() + (- self.x).exp()).pow(-2) * dl_dout
 
 #==================================================================================
 
