@@ -1,7 +1,11 @@
+# Authors: Gianni Lodetti, Luca Bracone, Omid Karimi
+# Definition of neural networks
+
 import torch
 from torch import nn
 from torch.nn import functional as F
 
+# Basic Neural Network, 3 fully-connected layers with batch normalization
 class BasicNN(nn.Module):
     def __init__(self):
         super().__init__()
@@ -16,7 +20,9 @@ class BasicNN(nn.Module):
         x = F.relu(self.fc2(x.view(-1, 100)))
         x = self.fc3(x.view(-1, 100))
         return x
+    
 
+# Convolutional Neural Network, 2 convolutional layers and 2 fully-connected layers    
 class CNN(nn.Module):
     def __init__(self):
         super().__init__()
@@ -34,6 +40,36 @@ class CNN(nn.Module):
         x = self.bn2(x)
         x = F.relu(self.fc1(x.view(-1, 256)))
         x = F.relu(self.fc2(x))
+<<<<<<< HEAD
+=======
+        return x
+    
+    
+# To test if it works, otherwise redo each model we want with different activation functions (clumsy) 
+class CNN_param(nn.Module):
+    def __init__(self, act="relu"):
+        super().__init__()
+        self.conv1 = nn.Conv2d(2, 32, kernel_size = 5)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size = 3)
+        self.fc1 = nn.Linear(256, 100)
+        self.fc2 = nn.Linear(100, 2)
+        self.bn1 = nn.BatchNorm2d(32)
+        self.bn2 = nn.BatchNorm2d(64)
+
+    def forward(self, x):
+        if (act == "relu"):
+            activation = F.relu
+        if (act == "leaky"):
+            activation = F.leaky_relu
+        if (act == "sigmoid"):
+            activation = F.sigmoid
+        x = activation(F.max_pool2d(self.conv1(x), kernel_size = 2, stride = 2))
+        x = self.bn1(x) 
+        x = activation(F.max_pool2d(self.conv2(x), kernel_size = 2, stride = 1))
+        x = self.bn2(x)
+        x = activation(self.fc1(x.view(-1, 256)))
+        x = activation(self.fc2(x))
+>>>>>>> 0cf74490d48f7924910b778ce37c25eeec69d276
         return x
 
 
@@ -61,10 +97,9 @@ class CNN_AUX(nn.Module):
 
 
     def forward(self, xy):
-        #seperate images
+        # seperate images
         x = xy.narrow(1, 0, 1)
         y = xy.narrow(1, 1, 1)
-
 
         x = F.relu(F.max_pool2d(self.conv11(x), kernel_size = 2, stride = 2))
         x = self.bn1(x)
@@ -86,6 +121,7 @@ class CNN_AUX(nn.Module):
         z = torch.cat((x,y), 1)
         z = self.fc_compare(z)
         return x, y ,z
+    
 
 class SIAMESE_CNN_AUX(nn.Module):
     def __init__(self, nb_hidden = 64):
@@ -101,7 +137,7 @@ class SIAMESE_CNN_AUX(nn.Module):
         #layer to learn how to compare the two digits
         self.fc_compare = nn.Linear(20, 2)
 
-    def foward_once(self, x):
+    def forward_once(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), kernel_size = 2, stride = 2))
         x = self.bn1(x)
         x = F.relu(F.max_pool2d(self.conv2(x), kernel_size = 2, stride = 1))
@@ -113,8 +149,8 @@ class SIAMESE_CNN_AUX(nn.Module):
 
     def forward(self, xy):
         #weight sharing between two subnetworks
-        x = self.foward_once(xy.narrow(1, 0, 1))
-        y = self.foward_once(xy.narrow(1, 1, 1))
+        x = self.forward_once(xy.narrow(1, 0, 1))
+        y = self.forward_once(xy.narrow(1, 1, 1))
 
         #contactenate "two images" together
         z = torch.cat((x,y), 1)
