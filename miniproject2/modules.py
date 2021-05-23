@@ -49,6 +49,7 @@ class Linear(Module):
         self.grad_b.add_(dl_dout.t())
 
     def param(self):
+
         return [
                 (self.w, self.grad_w),
                 (self.b, self.grad_b)
@@ -92,11 +93,19 @@ class Tanh(Module):
 
 # Modules for loss functions
 
-class MSELoss(Module):
-    def __init__(self):
+class MSELoss(Module):  
+    def __init__(self) -> None:
+        super().__init__()  
 
-    def forward(self):
+    def forward(self, input, target):
+        self.input = input
+        self.target = target
+        loss = (target-input).pow(2)
+        return torch.mean(loss)
 
     def backward(self):
+        return 2 * (self.input - self.target).div(self.input.size(0)) 
 
-    def param(self):
+        
+        
+

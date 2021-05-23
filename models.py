@@ -16,8 +16,8 @@ class BasicNN(nn.Module):
         self.bn2 = nn.BatchNorm1d(100)
 
     def forward(self, x):
-        x = F.relu(self.bn1(self.fc1(x.view(-1, 392))))
-        x = F.relu(self.bn2(self.fc2(x.view(-1, 100))))
+        x = F.relu(self.fc1(x.view(-1, 392)))
+        x = F.relu(self.fc2(x.view(-1, 100)))
         x = self.fc3(x.view(-1, 100))
         return x
     
@@ -40,6 +40,8 @@ class CNN(nn.Module):
         x = self.bn2(x)
         x = F.relu(self.fc1(x.view(-1, 256)))
         x = F.relu(self.fc2(x))
+<<<<<<< HEAD
+=======
         return x
     
     
@@ -67,10 +69,11 @@ class CNN_param(nn.Module):
         x = self.bn2(x)
         x = activation(self.fc1(x.view(-1, 256)))
         x = activation(self.fc2(x))
+>>>>>>> 0cf74490d48f7924910b778ce37c25eeec69d276
         return x
 
 
-#THIS MODEL TAKES MORE THEN 2 SECONDS TO TRAIN!! NEED TO FIND WAYS TO SPEED IT UP!!!, siamese network might increase the speed, also reducing number of parameters to approx 70k
+#reducing number of parameters to approx 70k
 #TODO try leakyrelu, sigmoid, adding, add weight sharing through siamese network, playing with kernel sizes ect.. and different optimizer functions too
 #add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
 class CNN_AUX(nn.Module):
@@ -120,7 +123,6 @@ class CNN_AUX(nn.Module):
         return x, y ,z
     
 
-#TODO better perfomance but still slow, perhaps play with number of convolutions 3 instead of 2, and play with the parameters of the convolutoions and size of connected layers
 class SIAMESE_CNN_AUX(nn.Module):
     def __init__(self, nb_hidden = 64):
         super().__init__()
@@ -149,6 +151,41 @@ class SIAMESE_CNN_AUX(nn.Module):
         #weight sharing between two subnetworks
         x = self.forward_once(xy.narrow(1, 0, 1))
         y = self.forward_once(xy.narrow(1, 1, 1))
+
+        #contactenate "two images" together
+        z = torch.cat((x,y), 1)
+        z = self.fc_compare(z)
+        return x, y ,z
+
+#TODO Siamese modelw without auxiliary loss 
+class SIAMESE_CNN(nn.Module):
+    def __init__(self, nb_hidden = 64):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size = 5)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size = 3)
+        self.fc11 = nn.Linear(256, nb_hidden)
+        self.fc12 = nn.Linear(nb_hidden, 10)
+        
+        self.bn1 = nn.BatchNorm2d(32)
+        self.bn2 = nn.BatchNorm2d(64)
+
+        #layer to learn how to compare the two digits
+        self.fc_compare = nn.Linear(20, 2)
+
+    def foward_once(self, x):
+        x = F.relu(F.max_pool2d(self.conv1(x), kernel_size = 2, stride = 2))
+        x = self.bn1(x)
+        x = F.relu(F.max_pool2d(self.conv2(x), kernel_size = 2, stride = 1))
+        x = self.bn2(x)
+
+        x = F.relu(self.fc11(x.view(-1, 256)))
+        x = F.relu(self.fc12(x))
+        return x
+
+    def forward(self, xy):
+        #weight sharing between two subnetworks
+        x = self.foward_once(xy.narrow(1, 0, 1))
+        y = self.foward_once(xy.narrow(1, 1, 1))
 
         #contactenate "two images" together
         z = torch.cat((x,y), 1)
