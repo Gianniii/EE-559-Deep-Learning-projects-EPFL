@@ -16,8 +16,8 @@ class BasicNN(nn.Module):
         self.bn2 = nn.BatchNorm1d(100)
 
     def forward(self, x):
-        x = F.relu(self.fc1(x.view(-1, 392)))
-        x = F.relu(self.fc2(x.view(-1, 100)))
+        x = F.relu(self.bn1(self.fc1(x.view(-1, 392))))
+        x = F.relu(self.bn2(self.fc2(x.view(-1, 100))))
         x = self.fc3(x.view(-1, 100))
         return x
     
@@ -40,8 +40,6 @@ class CNN(nn.Module):
         x = self.bn2(x)
         x = F.relu(self.fc1(x.view(-1, 256)))
         x = F.relu(self.fc2(x))
-<<<<<<< HEAD
-=======
         return x
     
     
@@ -69,7 +67,7 @@ class CNN_param(nn.Module):
         x = self.bn2(x)
         x = activation(self.fc1(x.view(-1, 256)))
         x = activation(self.fc2(x))
->>>>>>> 0cf74490d48f7924910b778ce37c25eeec69d276
+
         return x
 
 
