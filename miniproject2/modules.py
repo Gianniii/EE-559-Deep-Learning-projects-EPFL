@@ -58,14 +58,26 @@ class Linear(Module):
 
 # Module to combines several other modules
 class Sequential(Module):
-    def __init__(self):
+    def __init__(self, modules):
+        self.modules = modules
 
-    def forward(self):
+    def forward(self, x):
+        self.x = x
+        for m in self.modules:
+            x = m.forward(x)
+        return x
 
-    def backward(self):
+    def backward(self, dl_dout):
+        self.dl_dout = dl_dout
+        for m in reversed(self.modules):
+            dl_dout = m.backward(dl_dout)
+        return dl_out
 
     def param(self):
-
+        param = []
+        for m in self.modules:
+            param.append(m.param())
+        return param
 
 #==================================================================================
 
@@ -93,9 +105,9 @@ class Tanh(Module):
 
 # Modules for loss functions
 
-class MSELoss(Module):  
+class MSELoss(Module):
     def __init__(self) -> None:
-        super().__init__()  
+        super().__init__()
 
     def forward(self, input, target):
         self.input = input
@@ -104,8 +116,4 @@ class MSELoss(Module):
         return torch.mean(loss)
 
     def backward(self):
-        return 2 * (self.input - self.target).div(self.input.size(0)) 
-
-        
-        
-
+        return 2 * (self.input - self.target).div(self.input.size(0))
