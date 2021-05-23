@@ -6,6 +6,13 @@ import math
 torch.set_grad_enabled(False)
 
 class Module(object):
+    def zero_grad(self):
+        """
+        Resets the gradients to zero
+        Do not call this on a "Module" with no grad_w or grad_b !!!
+        """
+        self.grad_w = tensor.empty(self.w.size()).fill_(0)
+        self.grad_b = tensor.empty(self.b.size()).fill_(0)
 
     def forward(self, *input):
         raise NotImplementedError
@@ -35,8 +42,8 @@ class Linear(Module):
         # Gradient vector is just empty for now
         # Each channel represents one of the inputs we receive in the batch
         # And within each channel, each entry represents "how much" the weight should change according to that x
-        self.grad_w = tensor.empty(self.w.size())
-        self.grad_b = tensor.empty(self.b.size())
+        self.grad_w = tensor.empty(self.w.size()).fill_(0)
+        self.grad_b = tensor.empty(self.b.size()).fill_(0)
 
     def forward(self, x):
         # We record the input for later use
