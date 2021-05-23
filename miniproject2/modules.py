@@ -29,7 +29,7 @@ class Linear(Module):
     def backward(self):
         
     def param(self):
-        
+
     
 # Module to combines several other modules
 class Sequential(Module):
@@ -72,13 +72,18 @@ class Tanh(Module):
 
 # Modules for loss functions
 
-class MSELoss(Module):
-    def __init__(self):
-        
-    def forward(self):
-        
+class MSELoss(Module):  
+    def __init__(self) -> None:
+        super().__init__()  
+
+    def forward(self, input, target):
+        self.input = input
+        self.target = target
+        loss = (target-input).pow(2)
+        return torch.mean(loss)
+
     def backward(self):
-        
-    def param(self): 
+        return 2 * (self.input - self.target).div(self.input.size(0)) 
+
         
         
