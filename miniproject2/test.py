@@ -3,6 +3,7 @@
 import torch
 import math
 from modules import *
+from optimizers import *
 
 torch.set_grad_enabled(False)
 
@@ -36,7 +37,6 @@ nb_epochs = 25
 def train_model(model, train_input, train_target, mini_batch_size):
     criterion = modules.MSELoss()
     #optimizer = optim.SGD(model.parameters(), lr = 1e-1)
-
     for e in range(nb_epochs):
         for b in range(0, train_input.size(0), mini_batch_size):
             output = model(train_input.narrow(0, b, mini_batch_size))
@@ -49,10 +49,10 @@ def train_model(model, train_input, train_target, mini_batch_size):
 def compute_nb_errors(model, input, target, mini_batch_size, with_auxiliary_loss):
     error_count = 0
     for b in range(0,train_input.size(0), mini_batch_size):
-        if (with_auxiliary_loss == False):
-            output = model(input.narrow(0, b, mini_batch_size))
-        else:
+        if with_auxiliary_loss:
             _, _, output = model(input.narrow(0, b, mini_batch_size))
+        else:
+            output = model(input.narrow(0, b, mini_batch_size))
 
         _, predicted_classes = output.max(1)
         for k in range(mini_batch_size):

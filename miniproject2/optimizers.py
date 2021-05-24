@@ -1,4 +1,5 @@
-
+# Authors: Gianni Lodetti, Luca Bracone, Omid Karimi
+# Definition of model optimizers 
 
 class SGD():
     '''

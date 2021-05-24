@@ -91,22 +91,22 @@ class Sequential(Module):
 # Modules for activations functions
 
 class ReLU(Module):
-    def __init__(self):
+    def forward(self, x):
+        self.x = x
+        return torch.max(torch.zeros_like(x), x)
 
-    def forward(self):
-
-    def backward(self):
-
-    def param(self):
-
+    def backward(self, dl_dout):
+        # clamp forces negative elements to 0.0
+        return clamp(x.sign(), 0.0, 1.0) * dl_dout
 
 
 class Tanh(Module):
     def forward(self, x):
         self.x = x
         return x.tanh()
+    
     def backward(self, dl_dout):
-        return 4.0 * (self.x.exp() + (- self.x).exp()).pow(-2) * dl_dout
+        return 4.0 * (self.x.exp() + (-self.x).exp()).pow(-2) * dl_dout
 
 #==================================================================================
 
