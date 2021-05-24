@@ -2,8 +2,8 @@
 
 import torch
 import math
-from modules import *
-from optimizers import *
+from modules import Linear, Sequential, ReLU, Tanh, MSELoss
+from optimizers import SGD
 
 torch.set_grad_enabled(False)
 
@@ -31,31 +31,31 @@ test_data, test_target = generate_data(n, center, radius)
 
 # Training and error computation
 
-mini_batch_size = 100
-nb_epochs = 25
-
 def train_model(model, train_input, train_target, mini_batch_size):
-    criterion = modules.MSELoss()
-    optimizer = optimizers.SGD(model, lr = 1e-1)
+    criterion = MSELoss()
+    optimizer = SGD(model)
     
+    nb_epochs = 25
     for e in range(nb_epochs):
         for b in range(0, train_input.size(0), mini_batch_size):
-            output = model(train_input.narrow(0, b, mini_batch_size))
-            loss = criterion(output, train_target.narrow(0, b, mini_batch_size))
+            output = model.forward(train_input.narrow(0, b, mini_batch_size))
+            loss = criterion.forward(output, train_target.narrow(0, b, mini_batch_size))
 
             model.zero_grad()
-            loss.backward()
+            
+            loss_grad = criterion.backward()
+            model.backward(loss_grad)
+            
             optimizer.step()
             
-def compute_nb_errors(model, input, target, mini_batch_size, with_auxiliary_loss):
+def compute_nb_errors(model, input, target, mini_batch_size):
     error_count = 0
-    for b in range(0,train_input.size(0), mini_batch_size):
-        if with_auxiliary_loss:
-            _, _, output = model(input.narrow(0, b, mini_batch_size))
-        else:
-            output = model(input.narrow(0, b, mini_batch_size))
+    for b in range(0, train_data.size(0), mini_batch_size):
+        output = model.forward(input.narrow(0, b, mini_batch_size))
+        #print(output)
 
-        _, predicted_classes = output.max(1)
+        predicted_classes = torch.where(output < 0.5, 0, 1)
+        #print(predicted_classes)
         for k in range(mini_batch_size):
             if target[b + k] != predicted_classes[k]:
                 error_count += 1
@@ -63,4 +63,11 @@ def compute_nb_errors(model, input, target, mini_batch_size, with_auxiliary_loss
 
 #===============================================================================================
 
-# YEP
+# TESTS
+mini_batch_size = 100
+
+model = Sequential([Linear(2, 25), ReLU(), Linear(25, 25), ReLU(), Linear(25, 25), ReLU(), Linear(25, 25), ReLU(), Linear(25, 1)])
+train_model(model, train_data, train_target, mini_batch_size)
+nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
+print("Number of errors: " + str(nb_errors))
+
