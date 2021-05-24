@@ -7,13 +7,8 @@ torch.set_grad_enabled(False)
 
 class Module(object):
     def zero_grad(self):
-        """
-        Resets the gradients to zero
-        Do not call this on a "Module" with no grad_w or grad_b !!!
-        """
-        self.grad_w = torch.empty(self.w.size()).fill_(0)
-        self.grad_b = torch.empty(self.b.size()).fill_(0)
-
+        return
+        
     def forward(self, *input):
         raise NotImplementedError
 
@@ -55,8 +50,11 @@ class Linear(Module):
         #print(dl_dout.shape)
         #print(self.input.shape)
         #print(self.grad_w.shape)
+        #print("gradients: \n")
+        #print(self.grad_w)
         self.grad_w.add_(self.input.t() @ dl_dout)
-        self.grad_b.add_(dl_dout.sum())
+        self.grad_b.add_(dl_dout.sum(0))
+        #print(self.grad_w)
         return dl_dout @ self.w.t()
 
     def param(self):
@@ -65,6 +63,11 @@ class Linear(Module):
                 (self.w, self.grad_w),
                 (self.b, self.grad_b)
                 ]
+
+    def zero_grad(self):
+        self.grad_w = torch.empty(self.w.size()).fill_(0)
+        self.grad_b = torch.empty(self.b.size()).fill_(0)
+
 
 
 # Module to combines several other modules
@@ -87,11 +90,12 @@ class Sequential(Module):
     def param(self):
         param = []
         for m in self.modules:
-            param.append(m.param())
+            param.extend(m.param())
         return param
     
     def zero_grad(self):
-        return
+        for m in self.modules:
+            m.zero_grad()
 
 #==================================================================================
 
@@ -106,8 +110,6 @@ class ReLU(Module):
         # clamp forces negative elements to 0.0
         return torch.clamp(self.x.sign(), 0.0, 1.0) * dl_dout
     
-    def zero_grad(self):
-        return
 
 
 class Tanh(Module):
@@ -118,8 +120,6 @@ class Tanh(Module):
     def backward(self, dl_dout):
         return 4.0 * (self.x.exp() + (-self.x).exp()).pow(-2) * dl_dout
 
-    def zero_grad(self):
-        return
     
 #==================================================================================
 
@@ -138,5 +138,3 @@ class MSELoss(Module):
     def backward(self):
         return torch.div(self.input - self.target, self.input.size(0)) * 2
     
-    def zero_grad(self):
-        return

@@ -33,14 +33,14 @@ test_data, test_target = generate_data(n, center, radius)
 
 def train_model(model, train_input, train_target, mini_batch_size):
     criterion = MSELoss()
-    optimizer = SGD(model)
+    optimizer = SGD(model.param())
     
     nb_epochs = 25
     for e in range(nb_epochs):
         for b in range(0, train_input.size(0), mini_batch_size):
             output = model.forward(train_input.narrow(0, b, mini_batch_size))
+            #print("output" + str(output))
             loss = criterion.forward(output, train_target.narrow(0, b, mini_batch_size))
-
             model.zero_grad()
             
             loss_grad = criterion.backward()
