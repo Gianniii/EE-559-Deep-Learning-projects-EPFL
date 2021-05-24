@@ -120,13 +120,14 @@ class Tanh(Module):
     def backward(self, dl_dout):
         return 4.0 * (self.x.exp() + (-self.x).exp()).pow(-2) * dl_dout
 
-#UNTESTED, code wont work when i add this ...
+#UNTESTED
 class Sigmoid(Module):
-    def foward(self, x):
+    def forward(self, x):
         self.x = x.clone()
-        return torch.div(1, (1+ (-self.x).exp()))
+        return torch.div(1, (1+ torch.exp(-self.x)))
+
     def backward(self, dl_dout):
-        sig = torch.div(1, (1+ (-self.x).exp()))
+        sig = torch.div(1, (1+ torch.exp(-self.x)))
         return sig * (1-sig) * dl_dout
 #==================================================================================
 
