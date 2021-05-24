@@ -52,13 +52,7 @@ def train_model(model, train_input, train_target, mini_batch_size):
         # We do this with mini-batches
         for b in range(0, train_input.size(0), mini_batch_size):
             output = model(train_input.narrow(0, b, mini_batch_size))
-<<<<<<< HEAD
-            loss = criterion(output, train_target.narrow(0, b, mini_batch_size))
-            
-=======
-            #print("output size:", output.size())
             loss = criterion(output, train_target.narrow(0, b, mini_batch_size)) 
->>>>>>> 0cf74490d48f7924910b778ce37c25eeec69d276
 
             model.zero_grad()
             loss.backward()
