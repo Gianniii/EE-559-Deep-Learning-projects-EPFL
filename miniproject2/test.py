@@ -2,7 +2,7 @@
 
 import torch
 import math
-from modules import Linear, Sequential, ReLU, Tanh, MSELoss
+from modules import Linear, Sequential, ReLU, Tanh, MSELoss, Sigmoid
 from optimizers import SGD
 
 torch.set_grad_enabled(False)
@@ -66,7 +66,11 @@ def compute_nb_errors(model, input, target, mini_batch_size):
 # TESTS
 mini_batch_size = 100
 
-model = Sequential([Linear(2, 25), ReLU(), Linear(25, 25), ReLU(), Linear(25, 25), ReLU(), Linear(25, 25), ReLU(), Linear(25, 1)])
+model = Sequential([Linear(2, 25), Tanh(), 
+                    Linear(25, 25), Tanh(), 
+                    Linear(25, 25), Tanh(), 
+                    Linear(25, 25), Tanh(), 
+                    Linear(25, 1)], Sigmoid())
 train_model(model, train_data, train_target, mini_batch_size)
 nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
 print("Number of errors: " + str(nb_errors))

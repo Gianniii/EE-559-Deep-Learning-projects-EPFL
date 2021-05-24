@@ -120,7 +120,14 @@ class Tanh(Module):
     def backward(self, dl_dout):
         return 4.0 * (self.x.exp() + (-self.x).exp()).pow(-2) * dl_dout
 
-    
+#UNTESTED
+class Sigmoid(Module):
+    def foward(self, x):
+        self.x = x.clone()
+        return torch.div(1, (1+ (-self.x).exp()))
+    def backward(self, dl_dout):
+        sig = torch.div(1, (1+torch.exp))
+        return sig * (1-sig) * (dl_dout)
 #==================================================================================
 
 # Modules for loss functions
