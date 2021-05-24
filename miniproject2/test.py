@@ -66,11 +66,7 @@ def compute_nb_errors(model, input, target, mini_batch_size):
 # TESTS
 mini_batch_size = 100
 
-model = Sequential([Linear(2, 25), Tanh(), 
-                    Linear(25, 25), Tanh(), 
-                    Linear(25, 25), Tanh(), 
-                    Linear(25, 25), Tanh(), 
-                    Linear(25, 1)], Sigmoid())
+model = Sequential([Linear(2, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 1)])
 train_model(model, train_data, train_target, mini_batch_size)
 nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
 print("Number of errors: " + str(nb_errors))
