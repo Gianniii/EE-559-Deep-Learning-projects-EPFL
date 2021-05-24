@@ -13,10 +13,10 @@ torch.set_grad_enabled(False)
 def generate_data(n, center, radius):
     random_tensor = torch.empty((n, 2)).uniform_(0, 1)
     radius_sq = math.pow(radius, 2)
-    
+
     temp_tensor = random_tensor.sub(center).pow(2).sum(1)
     target_tensor = torch.where(temp_tensor < radius_sq, 1, 0)
-    
+
     return random_tensor, target_tensor
 
 n = 1000
@@ -36,7 +36,7 @@ nb_epochs = 25
 def train_model(model, train_input, train_target, mini_batch_size):
     criterion = modules.MSELoss()
     #optimizer = optim.SGD(model.parameters(), lr = 1e-1)
-    
+
     for e in range(nb_epochs):
         for b in range(0, train_input.size(0), mini_batch_size):
             output = model(train_input.narrow(0, b, mini_batch_size))
@@ -45,7 +45,7 @@ def train_model(model, train_input, train_target, mini_batch_size):
             model.zero_grad()
             loss.backward()
             optimizer.step()
-            
+
 def compute_nb_errors(model, input, target, mini_batch_size, with_auxiliary_loss):
     error_count = 0
     for b in range(0,train_input.size(0), mini_batch_size):
