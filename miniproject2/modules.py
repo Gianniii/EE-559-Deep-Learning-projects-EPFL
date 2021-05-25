@@ -26,15 +26,22 @@ class Module(object):
 
 # Module for fully-connected layer
 class Linear(Module):
-    def __init__(self, input_layer_size, output_layer_size):
+    def __init__(self, input_layer_size, output_layer_size, nonlinearity):
         super().__init__()
+        gain = 1
+        if nonlinearity == "tanh":
+            gain = 5.0/3.0
+        elif nonlinearity == "relu":
+            gain = math.sqrt(2.0)
         # Weights "w" is a 2d tensor [input_layer_size, output_layer_size]
         # which is the transpose of what might seem "logical"
         # Thanks to broadcasting "w" is going to increase to a 3d tensor when we receive a batch of inputs
         # Bias "b" is a 1d tensor [output_layer_size]
         # We initialize with Xavier method
-        variance = 2.0 / (input_layer_size + output_layer_size)
-        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, 1)
+        variance =  2.0 / (input_layer_size + output_layer_size)
+        std = gain * math.sqrt(variance)
+        print("Xavier std:", std)
+        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, std)
         self.b = torch.empty(output_layer_size).normal_(0, 1)
 
         # Gradient vector is just empty for now
@@ -45,12 +52,12 @@ class Linear(Module):
 
         #self.w = FloatTensor(input_layer_size, output_layer_size)
         #self.grad_w = FloatTensor(input_layer_size, output_layer_size)
-        
+
         #self.b = FloatTensor(output_layer_size)
         #self.grad_b = FloatTensor(output_layer_size)
 
         #init parameters with normal distribution
-        #self.w.normal_() 
+        #self.w.normal_()
         #self.grad_w.fill_(0)
         #self.b.normal_()
         #self.grad_b.fill_(0)
@@ -108,7 +115,7 @@ class Sequential(Module):
         for m in self.modules:
             param.extend(m.param())
         return param
-    
+
     def zero_grad(self):
         for m in self.modules:
             m.zero_grad()
@@ -130,7 +137,7 @@ class Tanh(Module):
     def forward(self, x):
         self.x = x
         return x.tanh()
-    
+
     def backward(self, dl_dout):
         return 4.0 * (self.x.exp() + (-self.x).exp()).pow(-2) * dl_dout
 
@@ -159,4 +166,3 @@ class MSELoss(Module):
 
     def backward(self):
         return torch.div(self.input - self.target, self.input.size(0)) * 2
-    
