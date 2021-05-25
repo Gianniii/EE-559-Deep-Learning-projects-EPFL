@@ -33,8 +33,8 @@ test_data, test_target = generate_data(n, center, radius)
 
 def train_model(model, train_input, train_target, mini_batch_size, lossType = "MSE"):
     criterion = MSELoss()
-    if(lossType ==  "CrossEntropy"):
-        criterion = CrossEntropyLoss()
+    #if(lossType ==  "CrossEntropy"):
+    #    criterion = CrossEntropyLoss()
 
     optimizer = SGD(model.param())
     
