@@ -166,3 +166,18 @@ class MSELoss(Module):
 
     def backward(self):
         return torch.div(self.input - self.target, self.input.size(0)) * 2
+
+class CrossEntropyLoss(Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, input, target):
+        self.input = input
+        #make "target" into one hot labels "t"
+        t = torch.empty(input.shape()).fill_(0)
+        t[ target ] = 1
+        soft_max =  - torch.log(self.input.exp() / self.input.exp().sum())
+        return t * soft_max
+
+    def backward(self, dl_dout):
+        return self.input - self.input.pow(2)
