@@ -2,7 +2,7 @@
 
 import torch
 import math
-from modules import Linear, Sequential, ReLU, Tanh, MSELoss, Sigmoid, CrossEntropyLoss
+from modules import Linear, Sequential, ReLU, Tanh, MSELoss, Sigmoid
 from optimizers import SGD
 
 torch.set_grad_enabled(False)
