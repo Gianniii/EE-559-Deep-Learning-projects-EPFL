@@ -71,7 +71,7 @@ mini_batch_size = 100
 
 print("MSE Loss ==================\n")
 print("Tanh")
-for i in range(1):
+for i in range(10):
     model = Sequential([Linear(2, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 1), Sigmoid()])
     train_model(model, train_data, train_target, mini_batch_size, "MSE")
     nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
