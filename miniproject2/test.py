@@ -35,7 +35,7 @@ def train_model(model, train_input, train_target, mini_batch_size):
     criterion = MSELoss()
     optimizer = SGD(model.param())
     
-    nb_epochs = 25
+    nb_epochs = 200
     for e in range(nb_epochs):
         for b in range(0, train_input.size(0), mini_batch_size):
             output = model.forward(train_input.narrow(0, b, mini_batch_size))

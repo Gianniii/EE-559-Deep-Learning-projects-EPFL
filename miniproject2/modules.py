@@ -3,12 +3,11 @@
 import torch
 import math
 
+from torch import FloatTensor
+
 torch.set_grad_enabled(False)
 
 class Module(object):
-    def zero_grad(self):
-        return
-        
     def forward(self, *input):
         raise NotImplementedError
 
@@ -18,6 +17,9 @@ class Module(object):
     def param(self):
         return []
 
+    def zero_grad(self):
+        return
+
 #==================================================================================
 
 # Modules for neural networks
@@ -25,20 +27,33 @@ class Module(object):
 # Module for fully-connected layer
 class Linear(Module):
     def __init__(self, input_layer_size, output_layer_size):
+        super().__init__()
         # Weights "w" is a 2d tensor [input_layer_size, output_layer_size]
         # which is the transpose of what might seem "logical"
         # Thanks to broadcasting "w" is going to increase to a 3d tensor when we receive a batch of inputs
         # Bias "b" is a 1d tensor [output_layer_size]
         # We initialize with Xavier method
         variance = 2.0 / (input_layer_size + output_layer_size)
-        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, variance)
-        self.b = torch.empty(output_layer_size).normal_(0, variance)
+        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, 1)
+        self.b = torch.empty(output_layer_size).normal_(0, 1)
 
         # Gradient vector is just empty for now
         # Each channel represents one of the inputs we receive in the batch
         # And within each channel, each entry represents "how much" the weight should change according to that x
         self.grad_w = torch.empty(self.w.size()).fill_(0)
         self.grad_b = torch.empty(self.b.size()).fill_(0)
+
+        #self.w = FloatTensor(input_layer_size, output_layer_size)
+        #self.grad_w = FloatTensor(input_layer_size, output_layer_size)
+        
+        #self.b = FloatTensor(output_layer_size)
+        #self.grad_b = FloatTensor(output_layer_size)
+
+        #init parameters with normal distribution
+        #self.w.normal_() 
+        #self.grad_w.fill_(0)
+        #self.b.normal_()
+        #self.grad_b.fill_(0)
 
     def forward(self, x):
         # We record the input for later use
@@ -65,14 +80,15 @@ class Linear(Module):
                 ]
 
     def zero_grad(self):
-        self.grad_w = torch.empty(self.w.size()).fill_(0)
-        self.grad_b = torch.empty(self.b.size()).fill_(0)
+        self.grad_w.zero_()
+        self.grad_b.zero_()
 
 
 
 # Module to combines several other modules
 class Sequential(Module):
     def __init__(self, modules):
+        super().__init__()
         self.modules = modules
 
     def forward(self, x):
@@ -109,8 +125,6 @@ class ReLU(Module):
     def backward(self, dl_dout):
         # clamp forces negative elements to 0.0
         return torch.clamp(self.x.sign(), 0.0, 1.0) * dl_dout
-    
-
 
 class Tanh(Module):
     def forward(self, x):
