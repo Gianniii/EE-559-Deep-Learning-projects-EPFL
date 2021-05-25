@@ -39,10 +39,8 @@ class Linear(Module):
         var = 1 #normal by default
         self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, var) #normal by default
         if paramInit == "He": 
-            # 'He initialization' recommends for layers with a ReLU activation
             var = math.sqrt(2/(input_layer_size))
         if paramInit == "Xavier":
-            # 'Xavier initialization' recommends for layers with a tanh activation
             var =  math.sqrt(2/(input_layer_size + output_layer_size))
             
         self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, var)
