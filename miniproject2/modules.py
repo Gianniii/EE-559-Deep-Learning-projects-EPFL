@@ -3,17 +3,11 @@
 import torch
 import math
 
+from torch import FloatTensor
+
 torch.set_grad_enabled(False)
 
 class Module(object):
-    def zero_grad(self):
-        """
-        Resets the gradients to zero
-        Do not call this on a "Module" with no grad_w or grad_b !!!
-        """
-        self.grad_w = tensor.empty(self.w.size()).fill_(0)
-        self.grad_b = tensor.empty(self.b.size()).fill_(0)
-
     def forward(self, *input):
         raise NotImplementedError
 
@@ -23,6 +17,9 @@ class Module(object):
     def param(self):
         return []
 
+    def zero_grad(self):
+        return
+
 #==================================================================================
 
 # Modules for neural networks
@@ -30,30 +27,50 @@ class Module(object):
 # Module for fully-connected layer
 class Linear(Module):
     def __init__(self, input_layer_size, output_layer_size):
+        super().__init__()
         # Weights "w" is a 2d tensor [input_layer_size, output_layer_size]
         # which is the transpose of what might seem "logical"
         # Thanks to broadcasting "w" is going to increase to a 3d tensor when we receive a batch of inputs
         # Bias "b" is a 1d tensor [output_layer_size]
         # We initialize with Xavier method
-        variance = 2.0/(input_layer_size + output_layer_size)
-        self.w = tensor.empty(input_layer_size, output_layer_size).normal_(0, variance)
-        self.b = tensor.empty(output_layer_size).normal_(0, variance)
+        variance = 2.0 / (input_layer_size + output_layer_size)
+        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, 1)
+        self.b = torch.empty(output_layer_size).normal_(0, 1)
 
         # Gradient vector is just empty for now
         # Each channel represents one of the inputs we receive in the batch
         # And within each channel, each entry represents "how much" the weight should change according to that x
-        self.grad_w = tensor.empty(self.w.size()).fill_(0)
-        self.grad_b = tensor.empty(self.b.size()).fill_(0)
+        self.grad_w = torch.empty(self.w.size()).fill_(0)
+        self.grad_b = torch.empty(self.b.size()).fill_(0)
+
+        #self.w = FloatTensor(input_layer_size, output_layer_size)
+        #self.grad_w = FloatTensor(input_layer_size, output_layer_size)
+        
+        #self.b = FloatTensor(output_layer_size)
+        #self.grad_b = FloatTensor(output_layer_size)
+
+        #init parameters with normal distribution
+        #self.w.normal_() 
+        #self.grad_w.fill_(0)
+        #self.b.normal_()
+        #self.grad_b.fill_(0)
 
     def forward(self, x):
         # We record the input for later use
         self.input = x
         # It's just a matrix-vector product plus bias after it
-        return (self.w.t() @ x) + self.b
+        return (x @ self.w) + self.b
 
     def backward(self, dl_dout):
-        self.grad_w.add_(dl_dout.t() @ self.input)
-        self.grad_b.add_(dl_dout.t())
+        #print(dl_dout.shape)
+        #print(self.input.shape)
+        #print(self.grad_w.shape)
+        #print("gradients: \n")
+        #print(self.grad_w)
+        self.grad_w.add_(self.input.t() @ dl_dout)
+        self.grad_b.add_(dl_dout.sum(0))
+        #print(self.grad_w)
+        return dl_dout @ self.w.t()
 
     def param(self):
 
@@ -62,10 +79,16 @@ class Linear(Module):
                 (self.b, self.grad_b)
                 ]
 
+    def zero_grad(self):
+        self.grad_w.zero_()
+        self.grad_b.zero_()
+
+
 
 # Module to combines several other modules
 class Sequential(Module):
     def __init__(self, modules):
+        super().__init__()
         self.modules = modules
 
     def forward(self, x):
@@ -78,13 +101,17 @@ class Sequential(Module):
         self.dl_dout = dl_dout
         for m in reversed(self.modules):
             dl_dout = m.backward(dl_dout)
-        return dl_out
+        return dl_dout
 
     def param(self):
         param = []
         for m in self.modules:
-            param.append(m.param())
+            param.extend(m.param())
         return param
+    
+    def zero_grad(self):
+        for m in self.modules:
+            m.zero_grad()
 
 #==================================================================================
 
@@ -97,8 +124,7 @@ class ReLU(Module):
 
     def backward(self, dl_dout):
         # clamp forces negative elements to 0.0
-        return clamp(x.sign(), 0.0, 1.0) * dl_dout
-
+        return torch.clamp(self.x.sign(), 0.0, 1.0) * dl_dout
 
 class Tanh(Module):
     def forward(self, x):
@@ -108,6 +134,15 @@ class Tanh(Module):
     def backward(self, dl_dout):
         return 4.0 * (self.x.exp() + (-self.x).exp()).pow(-2) * dl_dout
 
+#UNTESTED
+class Sigmoid(Module):
+    def forward(self, x):
+        self.x = x.clone()
+        return torch.div(1, (1+ torch.exp(-self.x)))
+
+    def backward(self, dl_dout):
+        sig = torch.div(1, (1+ torch.exp(-self.x)))
+        return sig * (1-sig) * dl_dout
 #==================================================================================
 
 # Modules for loss functions
@@ -118,9 +153,10 @@ class MSELoss(Module):
 
     def forward(self, input, target):
         self.input = input
-        self.target = target
-        loss = (target-input).pow(2)
-        return torch.mean(loss)
+        self.target = target.view(input.shape)
+        loss = (self.target - input).pow(2)
+        return torch.mean(loss, 1).view(input.shape)
 
     def backward(self):
-        return 2 * (self.input - self.target).div(self.input.size(0))
+        return torch.div(self.input - self.target, self.input.size(0)) * 2
+    
