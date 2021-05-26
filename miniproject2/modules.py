@@ -43,17 +43,6 @@ class Linear(Module):
         self.grad_w = torch.empty(self.w.size()).fill_(0)
         self.grad_b = torch.empty(self.b.size()).fill_(0)
 
-        #self.w = FloatTensor(input_layer_size, output_layer_size)
-        #self.grad_w = FloatTensor(input_layer_size, output_layer_size)
-        
-        #self.b = FloatTensor(output_layer_size)
-        #self.grad_b = FloatTensor(output_layer_size)
-
-        #init parameters with normal distribution
-        #self.w.normal_() 
-        #self.grad_w.fill_(0)
-        #self.b.normal_()
-        #self.grad_b.fill_(0)
 
     def forward(self, x):
         # We record the input for later use

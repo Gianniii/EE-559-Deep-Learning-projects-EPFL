@@ -15,8 +15,5 @@ class SGD():
         for param in self.params:
             weight, grad = param
             #update weights
-            #print("==============================\n")
-            #print(weight)
-            #print(grad)
             weight.add_(-self.lr * grad)
-            #print(weight)
+            
