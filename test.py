@@ -30,9 +30,10 @@ train_input, train_target, train_classes, test_input, \
 test_target, test_classes = generate_pair_sets(1000)
 
 
+
 for i in range(10):
     aux_loss = True
-    model = SIAMESE_CNN_AUX(act = "relu")
+    model = SIAMESE_CNN_AUX(act = "leaky")
     start_time = time.time()
     train_model(model, train_input, train_target, train_classes, mini_batch_size, aux_loss, opt = "Adam")
     print("training time: " + str(time.time() - start_time))

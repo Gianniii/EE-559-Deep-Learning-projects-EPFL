@@ -18,7 +18,7 @@ def train_model(model, train_input, train_target, train_classes, mini_batch_size
     if (opt == "SGD"):
         optimizer = optim.SGD(model.parameters(), lr = 1e-1)
     if (opt == "Adam"):
-        optimizer = optim.Adam(model.parameters(), lr = 1e-2)
+        optimizer = optim.Adam(model.parameters(), lr = 0.015)
         
 
     for e in range(nb_epochs):
