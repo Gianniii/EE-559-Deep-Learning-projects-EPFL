@@ -26,7 +26,7 @@ class Module(object):
 
 # Module for fully-connected layer
 class Linear(Module):
-    def __init__(self, input_layer_size, output_layer_size, nonlinearity):
+    def __init__(self, input_layer_size, output_layer_size, paramInit = "Normal"):
         super().__init__()
         gain = 1
         if nonlinearity == "tanh":
@@ -38,29 +38,25 @@ class Linear(Module):
         # Thanks to broadcasting "w" is going to increase to a 3d tensor when we receive a batch of inputs
         # Bias "b" is a 1d tensor [output_layer_size]
         # We initialize with Xavier method
-        variance =  2.0 / (input_layer_size + output_layer_size)
-        std = gain * math.sqrt(variance)
-        print("Xavier std:", std)
-        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, std)
-        self.b = torch.empty(output_layer_size).normal_(0, 1)
-
+        #variance = 2.0 / (input_layer_size + output_layer_size)
+        #self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, 1)
+    
+        var = 1 #normal by default
+        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, var) #normal by default
+        if paramInit == "He": 
+            var = math.sqrt(2/(input_layer_size))
+        if paramInit == "Xavier":
+            var =  math.sqrt(2/(input_layer_size + output_layer_size))
+            
+        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, var)
+        
+        self.b = torch.empty(output_layer_size).normal_(0, var)
         # Gradient vector is just empty for now
         # Each channel represents one of the inputs we receive in the batch
         # And within each channel, each entry represents "how much" the weight should change according to that x
         self.grad_w = torch.empty(self.w.size()).fill_(0)
         self.grad_b = torch.empty(self.b.size()).fill_(0)
 
-        #self.w = FloatTensor(input_layer_size, output_layer_size)
-        #self.grad_w = FloatTensor(input_layer_size, output_layer_size)
-
-        #self.b = FloatTensor(output_layer_size)
-        #self.grad_b = FloatTensor(output_layer_size)
-
-        #init parameters with normal distribution
-        #self.w.normal_()
-        #self.grad_w.fill_(0)
-        #self.b.normal_()
-        #self.grad_b.fill_(0)
 
     def forward(self, x):
         # We record the input for later use
@@ -141,7 +137,6 @@ class Tanh(Module):
     def backward(self, dl_dout):
         return 4.0 * (self.x.exp() + (-self.x).exp()).pow(-2) * dl_dout
 
-#UNTESTED
 class Sigmoid(Module):
     def forward(self, x):
         self.x = x.clone()
@@ -168,16 +163,18 @@ class MSELoss(Module):
         return torch.div(self.input - self.target, self.input.size(0)) * 2
 
 class CrossEntropyLoss(Module):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     def forward(self, input, target):
-        self.input = input
-        #make "target" into one hot labels "t"
-        t = torch.empty(input.shape()).fill_(0)
-        t[ target ] = 1
-        soft_max =  - torch.log(self.input.exp() / self.input.exp().sum())
-        return t * soft_max
+        # We use sigmoid instead of softmax because we only have one output node
+        # Softmax = 1 if you only have one guy in your sum
+        # why use sigmoid instead of any other function? I don't know
+        self.p = 
+        self.y = target.view(input.shape)
+        loss = self.y*(self.p.log()) - (1-self.y) * (1 -self.p)
+        return loss
 
-    def backward(self, dl_dout):
-        return self.input - self.input.pow(2)
+    def backward(self):
+        return ((-self.y)/self.p) + (1-self.y)/(1-self.p)
+    

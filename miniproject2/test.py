@@ -31,8 +31,11 @@ test_data, test_target = generate_data(n, center, radius)
 
 # Training and error computation
 
-def train_model(model, train_input, train_target, mini_batch_size):
+def train_model(model, train_input, train_target, mini_batch_size, lossType = "MSE"):
     criterion = MSELoss()
+    #if(lossType ==  "CrossEntropy"):
+    #    criterion = CrossEntropyLoss()
+
     optimizer = SGD(model.param())
 
     nb_epochs = 200
@@ -66,7 +69,16 @@ def compute_nb_errors(model, input, target, mini_batch_size):
 # TESTS
 mini_batch_size = 100
 
-model = Sequential([Linear(2, 25, "tanh"), Tanh(), Linear(25, 25, "tanh"), Tanh(), Linear(25, 25, "tanh"), Tanh(), Linear(25, 25, "tanh"), Tanh(), Linear(25, 1, "sigmoid"), Sigmoid()])
-train_model(model, train_data, train_target, mini_batch_size)
-nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
-print("Number of errors: " + str(nb_errors))
+print("MSE Loss ==================\n")
+print("Tanh")
+for i in range(10):
+    model = Sequential([Linear(2, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 1), Sigmoid()])
+    train_model(model, train_data, train_target, mini_batch_size, "MSE")
+    nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
+    print("number of errors: " + str(nb_errors))
+print("ReLU")
+for i in range(10):
+    model = Sequential([Linear(2, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 1), Sigmoid()])
+    train_model(model, train_data, train_target, mini_batch_size, "MSE")
+    nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
+    print("number of errors: " + str(nb_errors))
