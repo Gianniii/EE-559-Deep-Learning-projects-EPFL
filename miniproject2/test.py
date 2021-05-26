@@ -4,7 +4,7 @@ import torch
 import math
 import statistics
 import time
-from modules import Linear, Sequential, ReLU, Tanh, MSELoss, Sigmoid
+from modules import *
 from optimizers import SGD
 
 torch.set_grad_enabled(False)
@@ -17,18 +17,16 @@ torch.set_grad_enabled(False)
 def generate_data(n, center, radius):
     random_tensor = torch.empty((n, 2)).uniform_(0, 1)
     radius_sq = math.pow(radius, 2)
-    
+
     temp_tensor = random_tensor.sub(center).pow(2).sum(1)
     target_tensor = torch.where(temp_tensor < radius_sq, 1, 0)
-    
+
     return random_tensor, target_tensor
 
 n = 1000
 center = 0.5
 radius = 1 / math.sqrt((2 * math.pi))
 
-train_data, train_target = generate_data(n, center, radius)
-test_data, test_target = generate_data(n, center, radius)
 
 #==============================================================================================
 
@@ -43,7 +41,7 @@ def train_model(model, train_input, train_target, mini_batch_size, lossType = "M
     log_losses = []
 
     optimizer = SGD(model.param())
-    
+
     nb_epochs = 200
     for e in range(nb_epochs):
         mean_losses = 0
@@ -54,16 +52,17 @@ def train_model(model, train_input, train_target, mini_batch_size, lossType = "M
             mean_losses += loss.mean().item()
             
             model.zero_grad()
-            
+
             loss_grad = criterion.backward()
             model.backward(loss_grad)
-            
+
             optimizer.step()
             
         log_losses.append(mean_losses)
         
     return log_losses
             
+
 def compute_nb_errors(model, input, target, mini_batch_size):
     error_count = 0
     # keep track of indices of wrong predictions for plot
@@ -120,7 +119,27 @@ print("Model: 3 fully-connected layers with Tanh as activation function \n")
 model = Sequential([Linear(2, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 1), Sigmoid()])
 run_model(model, 10)
 
+
 print("Model: 3 fully-connected layers with ReLU as activation function \n")
 # Define 2nd model
 model = Sequential([Linear(2, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 1), Sigmoid()])
 run_model(model, 10)
+
+""" print("================== Cross Entropy Loss ==================\n")
+print("Tanh")
+for i in range(10):
+    train_data, train_target = generate_data(n, center, radius)
+    test_data, test_target = generate_data(n, center, radius)
+    model = Sequential([Linear(2, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 1), Sigmoid()])
+    train_model(model, train_data, train_target, mini_batch_size, "CrossEntropy")
+    nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
+    print("number of errors: " + str(nb_errors))
+print("ReLU")
+for i in range(10):
+    train_data, train_target = generate_data(n, center, radius)
+    test_data, test_target = generate_data(n, center, radius)
+    model = Sequential([Linear(2, 25, "Xavier"), ReLU(), Linear(25, 25, "Xavier"), ReLU(), Linear(25, 25, "Xavier"), ReLU(), Linear(25, 25, "Xavier"), ReLU(), Linear(25, 1), Sigmoid()])
+    train_model(model, train_data, train_target, mini_batch_size, "CrossEntropy")
+    nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
+    print("number of errors: " + str(nb_errors)) """
+

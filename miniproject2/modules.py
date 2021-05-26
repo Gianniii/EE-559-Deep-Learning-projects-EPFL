@@ -106,7 +106,7 @@ class Sequential(Module):
         for m in self.modules:
             param.extend(m.param())
         return param
-    
+
     def zero_grad(self):
         for m in self.modules:
             m.zero_grad()
@@ -128,7 +128,7 @@ class Tanh(Module):
     def forward(self, x):
         self.x = x
         return x.tanh()
-    
+
     def backward(self, dl_dout):
         return 4.0 * (self.x.exp() + (-self.x).exp()).pow(-2) * dl_dout
 
@@ -157,17 +157,20 @@ class MSELoss(Module):
     def backward(self):
         return torch.div(self.input - self.target, self.input.size(0)) * 2
 
-#class CrossEntropyLoss(Module):
-    #def __init__(self) -> None:
-    #    super().__init__()
+class CrossEntropyLoss(Module):
+    def __init__(self) -> None:
+        super().__init__()
 
-    #def forward(self, input, target):
-    #    sig = input
-    #    self.p = sig
-    #    self.y = target.view(input.shape)
-    #    loss = self.y*(self.p.log()) - (1-self.y) * (1 -self.p)
-    #    return loss
+    def forward(self, input, target):
+        # We use sigmoid instead of softmax because we only have one output node
+        # Softmax = 1 if you only have one guy in your sum
+        # why use sigmoid instead of any other function? I don't know
+        sig = Sigmoid()
+        self.p = sig.forward(input)
+        self.y = target.view(input.shape)
+        loss = self.y*(-self.p.log()) - (1-self.y) * (1 - self.p).log()
+        return loss
 
-    #def backward(self):
-    #    return ((-self.y)/self.p) + (1-self.y)/(1-self.p)
+    def backward(self):
+        return ((-self.y)/self.p) + (1-self.y)/(1-self.p)
     
