@@ -36,7 +36,7 @@ class Linear(Module):
         #variance = 2.0 / (input_layer_size + output_layer_size)
         #self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, 1)
     
-        var = 1 #normal by default
+        var = 1 # normal by default
         self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, var) #normal by default
         if paramInit == "He": 
             var = math.sqrt(2/(input_layer_size))

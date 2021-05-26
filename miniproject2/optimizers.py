@@ -14,9 +14,6 @@ class SGD():
     def step(self):
         for param in self.params:
             weight, grad = param
-            #update weights
-            #print("==============================\n")
-            #print(weight)
-            #print(grad)
+            # update weights
             weight.add_(-self.lr * grad)
-            #print(weight)
+        
