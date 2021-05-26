@@ -20,9 +20,9 @@ class BasicNN(nn.Module):
         x = F.relu(self.bn2(self.fc2(x.view(-1, 100))))
         x = self.fc3(x.view(-1, 100))
         return x
-    
 
-# Convolutional Neural Network, 2 convolutional layers and 2 fully-connected layers    
+
+# Convolutional Neural Network, 2 convolutional layers and 2 fully-connected layers
 class CNN(nn.Module):
     def __init__(self, act="relu"):
         super().__init__()
@@ -37,12 +37,11 @@ class CNN(nn.Module):
     def forward(self, x):
         activation = getActivation(self.act)
         x = activation(F.max_pool2d(self.conv1(x), kernel_size = 2, stride = 2))
-        x = self.bn1(x) 
+        x = self.bn1(x)
         x = activation(F.max_pool2d(self.conv2(x), kernel_size = 2, stride = 1))
         x = self.bn2(x)
         x = activation(self.fc1(x.view(-1, 256)))
         x = activation(self.fc2(x))
-
         return x
 
 
@@ -62,7 +61,7 @@ class CNN_AUX(nn.Module):
         self.conv22 = nn.Conv2d(32, 64, kernel_size = 3)
         self.fc21 = nn.Linear(256, nb_hidden)
         self.fc22 = nn.Linear(nb_hidden, 10)
-        
+
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(64)
 
@@ -97,7 +96,7 @@ class CNN_AUX(nn.Module):
         z = torch.cat((x,y), 1)
         z = self.fc_compare(z)
         return x, y ,z
-    
+
 
 class SIAMESE_CNN_AUX(nn.Module):
     def __init__(self, nb_hidden = 64, act = "relu"):
@@ -107,7 +106,7 @@ class SIAMESE_CNN_AUX(nn.Module):
         self.conv2 = nn.Conv2d(32, 64, kernel_size = 3)
         self.fc11 = nn.Linear(256, nb_hidden)
         self.fc12 = nn.Linear(nb_hidden, 10)
-        
+
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(64)
 
@@ -143,3 +142,4 @@ def getActivation(act):
     if (act == "sigmoid"):
         activation = torch.sigmoid
     return activation
+
