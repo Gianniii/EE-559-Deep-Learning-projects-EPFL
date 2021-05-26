@@ -28,11 +28,6 @@ class Module(object):
 class Linear(Module):
     def __init__(self, input_layer_size, output_layer_size, paramInit = "Normal"):
         super().__init__()
-        gain = 1
-        if nonlinearity == "tanh":
-            gain = 5.0/3.0
-        elif nonlinearity == "relu":
-            gain = math.sqrt(2.0)
         # Weights "w" is a 2d tensor [input_layer_size, output_layer_size]
         # which is the transpose of what might seem "logical"
         # Thanks to broadcasting "w" is going to increase to a 3d tensor when we receive a batch of inputs
@@ -170,9 +165,10 @@ class CrossEntropyLoss(Module):
         # We use sigmoid instead of softmax because we only have one output node
         # Softmax = 1 if you only have one guy in your sum
         # why use sigmoid instead of any other function? I don't know
-        self.p = 
+        sig = Sigmoid()
+        self.p = sig.forward(input)
         self.y = target.view(input.shape)
-        loss = self.y*(self.p.log()) - (1-self.y) * (1 -self.p)
+        loss = self.y*(-self.p.log()) - (1-self.y) * (1 - self.p).log()
         return loss
 
     def backward(self):

@@ -2,7 +2,7 @@
 
 import torch
 import math
-from modules import Linear, Sequential, ReLU, Tanh, MSELoss, Sigmoid
+from modules import *
 from optimizers import SGD
 
 torch.set_grad_enabled(False)
@@ -24,8 +24,6 @@ n = 1000
 center = 0.5
 radius = 1 / math.sqrt((2 * math.pi))
 
-train_data, train_target = generate_data(n, center, radius)
-test_data, test_target = generate_data(n, center, radius)
 
 #==============================================================================================
 
@@ -33,8 +31,8 @@ test_data, test_target = generate_data(n, center, radius)
 
 def train_model(model, train_input, train_target, mini_batch_size, lossType = "MSE"):
     criterion = MSELoss()
-    #if(lossType ==  "CrossEntropy"):
-    #    criterion = CrossEntropyLoss()
+    if(lossType ==  "CrossEntropy"):
+        criterion = CrossEntropyLoss()
 
     optimizer = SGD(model.param())
 
@@ -72,13 +70,35 @@ mini_batch_size = 100
 print("MSE Loss ==================\n")
 print("Tanh")
 for i in range(10):
+    train_data, train_target = generate_data(n, center, radius)
+    test_data, test_target = generate_data(n, center, radius)
     model = Sequential([Linear(2, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 1), Sigmoid()])
     train_model(model, train_data, train_target, mini_batch_size, "MSE")
     nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
     print("number of errors: " + str(nb_errors))
 print("ReLU")
 for i in range(10):
+    train_data, train_target = generate_data(n, center, radius)
+    test_data, test_target = generate_data(n, center, radius)
     model = Sequential([Linear(2, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 1), Sigmoid()])
     train_model(model, train_data, train_target, mini_batch_size, "MSE")
+    nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
+    print("number of errors: " + str(nb_errors))
+
+print("Cross Entropy Loss ==================\n")
+print("Tanh")
+for i in range(10):
+    train_data, train_target = generate_data(n, center, radius)
+    test_data, test_target = generate_data(n, center, radius)
+    model = Sequential([Linear(2, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 25), Tanh(), Linear(25, 1), Sigmoid()])
+    train_model(model, train_data, train_target, mini_batch_size, "CrossEntropy")
+    nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
+    print("number of errors: " + str(nb_errors))
+print("ReLU")
+for i in range(10):
+    train_data, train_target = generate_data(n, center, radius)
+    test_data, test_target = generate_data(n, center, radius)
+    model = Sequential([Linear(2, 25, "Xavier"), ReLU(), Linear(25, 25, "Xavier"), ReLU(), Linear(25, 25, "Xavier"), ReLU(), Linear(25, 25, "Xavier"), ReLU(), Linear(25, 1), Sigmoid()])
+    train_model(model, train_data, train_target, mini_batch_size, "CrossEntropy")
     nb_errors = compute_nb_errors(model, test_data, test_target, mini_batch_size)
     print("number of errors: " + str(nb_errors))
