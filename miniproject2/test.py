@@ -68,7 +68,7 @@ def compute_nb_errors(model, input, target, mini_batch_size):
     # keep track of indices of wrong predictions for plot
     error_indices = []
     temp = input.clone()
-    for b in range(0, train_data.size(0), mini_batch_size):
+    for b in range(0, temp.size(0), mini_batch_size):
         output = model.forward(temp.narrow(0, b, mini_batch_size))
 
         predicted_classes = torch.where(output < 0.5, 0, 1)
