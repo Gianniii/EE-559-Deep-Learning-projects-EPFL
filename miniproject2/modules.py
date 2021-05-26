@@ -32,12 +32,9 @@ class Linear(Module):
         # which is the transpose of what might seem "logical"
         # Thanks to broadcasting "w" is going to increase to a 3d tensor when we receive a batch of inputs
         # Bias "b" is a 1d tensor [output_layer_size]
-        # We initialize with Xavier method
-        #variance = 2.0 / (input_layer_size + output_layer_size)
-        #self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, 1)
     
         var = 1 # normal by default
-        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, var) #normal by default
+        self.w = torch.empty(input_layer_size, output_layer_size).normal_(0, var) 
         if paramInit == "He": 
             var = math.sqrt(2/(input_layer_size))
         if paramInit == "Xavier":
@@ -60,14 +57,8 @@ class Linear(Module):
         return (x @ self.w) + self.b
 
     def backward(self, dl_dout):
-        #print(dl_dout.shape)
-        #print(self.input.shape)
-        #print(self.grad_w.shape)
-        #print("gradients: \n")
-        #print(self.grad_w)
         self.grad_w.add_(self.input.t() @ dl_dout)
         self.grad_b.add_(dl_dout.sum(0))
-        #print(self.grad_w)
         return dl_dout @ self.w.t()
 
     def param(self):
@@ -80,7 +71,6 @@ class Linear(Module):
     def zero_grad(self):
         self.grad_w.zero_()
         self.grad_b.zero_()
-
 
 
 # Module to combines several other modules
@@ -140,6 +130,7 @@ class Sigmoid(Module):
     def backward(self, dl_dout):
         sig = torch.div(1, (1+ torch.exp(-self.x)))
         return sig * (1-sig) * dl_dout
+    
 #==================================================================================
 
 # Modules for loss functions
