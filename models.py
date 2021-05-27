@@ -43,11 +43,9 @@ class CNN(nn.Module):
         x = activation(self.fc1(x.view(-1, 256)))
         x = activation(self.fc2(x))
         return x
+    
 
-
-#reducing number of parameters to approx 70k
-#TODO try leakyrelu, sigmoid, adding, add weight sharing through siamese network, playing with kernel sizes ect.. and different optimizer functions too
-#add auxiliary loss we need to distinguish the images in the image paire(to take advantage of the classes)
+# Convolutional Neural Network with auxiliary loss
 class CNN_AUX(nn.Module):
     def __init__(self, nb_hidden = 64, act = "relu"):
         super().__init__()
@@ -65,9 +63,8 @@ class CNN_AUX(nn.Module):
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(64)
 
-        #layer to learn how to compare the two digits
+        # layer to learn how to compare the two digits
         self.fc_compare = nn.Linear(20, 2)
-
 
     def forward(self, xy):
         activation = getActivation(self.act)
@@ -92,12 +89,13 @@ class CNN_AUX(nn.Module):
         y = activation(self.fc21(y.view(-1, 256)))
         y = activation(self.fc22(y))
 
-        #contactenate "two images" together
+        # contactenate "two images" together
         z = torch.cat((x,y), 1)
         z = self.fc_compare(z)
         return x, y ,z
 
-
+    
+# Siamese convolutional neural networkwith auxiliary loss
 class SIAMESE_CNN_AUX(nn.Module):
     def __init__(self, nb_hidden = 64, act = "relu"):
         super().__init__()
@@ -110,7 +108,7 @@ class SIAMESE_CNN_AUX(nn.Module):
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(64)
 
-        #layer to learn how to compare the two digits
+        # layer to learn how to compare the two digits
         self.fc_compare = nn.Linear(20, 2)
 
     def forward_once(self, x):
@@ -125,15 +123,17 @@ class SIAMESE_CNN_AUX(nn.Module):
         return x
 
     def forward(self, xy):
-        #weight sharing between two subnetworks
+        # weight sharing between two subnetworks
         x = self.forward_once(xy.narrow(1, 0, 1))
         y = self.forward_once(xy.narrow(1, 1, 1))
 
-        #contactenate "two images" together
+        # contactenate "two images" together
         z = torch.cat((x,y), 1)
         z = self.fc_compare(z)
         return x, y ,z
 
+    
+# Get desired activation function 
 def getActivation(act): 
     if (act == "relu"):
         activation = F.relu
@@ -142,4 +142,3 @@ def getActivation(act):
     if (act == "sigmoid"):
         activation = torch.sigmoid
     return activation
-

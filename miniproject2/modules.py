@@ -3,9 +3,8 @@
 import torch
 import math
 
-from torch import FloatTensor
-
 torch.set_grad_enabled(False)
+
 
 class Module(object):
     def forward(self, *input):
@@ -148,6 +147,7 @@ class MSELoss(Module):
     def backward(self):
         return torch.div(self.input - self.target, self.input.size(0)) * 2
 
+    
 class CrossEntropyLoss(Module):
     def __init__(self) -> None:
         super().__init__()
@@ -155,7 +155,6 @@ class CrossEntropyLoss(Module):
     def forward(self, input, target):
         # We use sigmoid instead of softmax because we only have one output node
         # Softmax = 1 if you only have one guy in your sum
-        # why use sigmoid instead of any other function? I don't know
         sig = Sigmoid()
         self.p = sig.forward(input)
         self.y = target.view(input.shape)

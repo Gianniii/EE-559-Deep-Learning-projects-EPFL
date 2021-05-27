@@ -1,5 +1,5 @@
 # Authors: Gianni Lodetti, Luca Bracone, Omid Karimi
-# Functions to train models
+# Function to train models
 
 import torch
 from models import *
@@ -33,7 +33,7 @@ def train_model(model, train_input, train_target, train_classes, mini_batch_size
                 loss2 = criterion(img2, train_classes.narrow(0, b, mini_batch_size).narrow(1,1,1).view(-1))
                 loss3 = criterion(biggest, train_target.narrow(0, b, mini_batch_size))
 
-                #add loss1 and loss2 as auxiliary losses
+                # add loss1 and loss2 as auxiliary losses
                 loss = loss1 + loss2 + loss3
             else:
                 output = model(train_input.narrow(0, b, mini_batch_size))
@@ -42,6 +42,3 @@ def train_model(model, train_input, train_target, train_classes, mini_batch_size
             model.zero_grad()
             loss.backward()
             optimizer.step()
-
-
-

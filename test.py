@@ -3,12 +3,11 @@
 import torch
 from models import *
 from train import *
-from torch import nn
 from utils import generate_pair_sets
+from torch import nn
 from torch import optim
 import statistics
 import time
-
 
 mini_batch_size = 100
 nb_epochs = 25
@@ -35,6 +34,7 @@ test_target, test_classes = generate_pair_sets(1000)"""
 runtimes = []
 error_logs = []
 nbr_runs = 10
+print("=========== Siamese convolutional neural network ===========\n")
 for i in range(nbr_runs):
     aux_loss = True
     model = SIAMESE_CNN_AUX(act = "leaky")

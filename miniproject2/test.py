@@ -28,7 +28,6 @@ n = 1000
 center = 0.5
 radius = 1 / math.sqrt((2 * math.pi))
 
-
 #==============================================================================================
 
 # Training and error computation
@@ -81,12 +80,12 @@ def compute_nb_errors(model, input, target, mini_batch_size):
 
 #===============================================================================================
 
-# MAIN
 mini_batch_size = 100
 n = 1000
 center = 0.5
 radius = 1 / math.sqrt((2 * math.pi))
 
+# Output results and statistics for given model
 def run_model(model, nbr_runs):
     error_logs = []
     runtimes = []
@@ -109,6 +108,7 @@ def run_model(model, nbr_runs):
         print("Test errors: " + str(nb_errors) + ", Test error rate: " + str((nb_errors * 100 / n)) + "%")
         print("==================")
         error_logs.append(nb_errors)
+        
     print(f"Mean of test errors over %d runs: %f" % (nbr_runs, statistics.mean(error_logs)))
     print(f"Standard deviation of test errors over %d runs: %f" % (nbr_runs, statistics.stdev(error_logs)))
     print(f"Average training time: %f sec" % (statistics.mean(runtimes)))
@@ -128,6 +128,7 @@ print("Model: 3 fully-connected layers with ReLU as activation function \n")
 model = Sequential([Linear(2, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 25, "He"), ReLU(), Linear(25, 1), Sigmoid()])
 run_model(model, 10)
 
+# Not done
 """ print("================== Cross Entropy Loss ==================\n")
 print("Tanh")
 for i in range(10):
