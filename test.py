@@ -29,6 +29,36 @@ def compute_nb_errors(model, input, target, mini_batch_size, with_auxiliary_loss
 train_input, train_target, train_classes, test_input, \
 test_target, test_classes = generate_pair_sets(1000)
 
+import copy
+
+# Runs given model nbr_runs time and outputs statistics
+def run_model(model, aux_loss, opt, nbr_runs):
+    error_logs = []
+    runtimes = []
+    for i in range(nbr_runs):
+        # Generate data at eah iteration
+        train_input, train_target, train_classes, test_input, \
+        test_target, test_classes = generate_pair_sets(1000)
+        
+        temp_model = copy.deepcopy(model)
+        start_time = time.time()
+        train_model(temp_model, train_input, train_target, train_classes, mini_batch_size, aux_loss, opt=opt)
+        runtime = start_time - time.time()
+        runtimes.append(runtime)
+        print("Training time: " + str(runtime))
+        
+        n = compute_nb_errors(temp_model, test_input, test_target, mini_batch_size, aux_loss)
+        error_logs.append(n)
+        print("Iteration: "+ str(i + 1) + ", Test errors: " + str(n) + "Test error rate: " + str((n * 100 / n)) + "%")
+        
+    print(f"Mean of test errors over %d runs: %f" % (nbr_runs, statistics.mean(error_logs)))
+    print(f"Standard deviation of test errors over %d runs: %f" % (nbr_runs, statistics.stdev(error_logs)))
+    print(f"Average training time: %f sec" % (statistics.mean(runtimes)))
+
+# DEFINE MODELS TO TEST
+
+model = SIAMESE_CNN_AUX(act = "leaky")
+run_model(model, aux_loss=True, opt="SGD", nbr_runs=10)
 
 
 for i in range(10):

@@ -94,15 +94,16 @@ def run_model(model, nbr_runs):
         train_data, train_target = generate_data(n, center, radius)
         test_data, test_target = generate_data(n, center, radius)
 
+        temp_model = model
         # Train model and compute train and test errors
         start_time = time.time()
-        log_losses = train_model(model, train_data, train_target, mini_batch_size, "MSE")
+        log_losses = train_model(temp_model, train_data, train_target, mini_batch_size, "MSE")
         runtimes.append(time.time() - start_time)
 
         # Output statistics
-        nb_errors, _ = compute_nb_errors(model, train_data, train_target, mini_batch_size)
+        nb_errors, _ = compute_nb_errors(temp_model, train_data, train_target, mini_batch_size)
         print("Training errors: " + str(nb_errors) + ", Training error rate: " + str((nb_errors * 100 / n)) + "%")
-        nb_errors, error_indices = compute_nb_errors(model, test_data, test_target, mini_batch_size)
+        nb_errors, error_indices = compute_nb_errors(temp_model, test_data, test_target, mini_batch_size)
         print("Test errors: " + str(nb_errors) + ", Test error rate: " + str((nb_errors * 100 / n)) + "%")
         print("==================")
         error_logs.append(nb_errors)
