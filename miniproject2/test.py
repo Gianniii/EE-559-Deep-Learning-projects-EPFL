@@ -4,6 +4,7 @@ import torch
 import math
 import statistics
 import time
+import copy
 from modules import *
 from optimizers import SGD
 
@@ -94,7 +95,8 @@ def run_model(model, nbr_runs):
         train_data, train_target = generate_data(n, center, radius)
         test_data, test_target = generate_data(n, center, radius)
 
-        temp_model = model
+        # Deepcopy at each iteration to keep original model
+        temp_model = copy.deepcopy(model)
         # Train model and compute train and test errors
         start_time = time.time()
         log_losses = train_model(temp_model, train_data, train_target, mini_batch_size, "MSE")

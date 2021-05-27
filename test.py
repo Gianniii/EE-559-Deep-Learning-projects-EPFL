@@ -30,6 +30,7 @@ train_input, train_target, train_classes, test_input, \
 test_target, test_classes = generate_pair_sets(1000)
 
 import copy
+import statistics
 
 # Runs given model nbr_runs time and outputs statistics
 def run_model(model, aux_loss, opt, nbr_runs):
