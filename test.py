@@ -6,6 +6,7 @@ from train import *
 from torch import nn
 from utils import generate_pair_sets
 from torch import optim
+import statistics
 import time
 
 
@@ -26,48 +27,35 @@ def compute_nb_errors(model, input, target, mini_batch_size, with_auxiliary_loss
                 count = count + 1
     return count
 
-train_input, train_target, train_classes, test_input, \
-test_target, test_classes = generate_pair_sets(1000)
+"""train_input, train_target, train_classes, test_input, \
+test_target, test_classes = generate_pair_sets(1000)"""
 
-import copy
-import statistics
+# Example output for best model
 
-# Runs given model nbr_runs time and outputs statistics
-def run_model(model, aux_loss, opt, nbr_runs):
-    error_logs = []
-    runtimes = []
-    for i in range(nbr_runs):
-        # Generate data at eah iteration
-        train_input, train_target, train_classes, test_input, \
-        test_target, test_classes = generate_pair_sets(1000)
-        
-        temp_model = copy.deepcopy(model)
-        start_time = time.time()
-        train_model(temp_model, train_input, train_target, train_classes, mini_batch_size, aux_loss, opt=opt)
-        runtime = start_time - time.time()
-        runtimes.append(runtime)
-        print("Training time: " + str(runtime))
-        
-        n = compute_nb_errors(temp_model, test_input, test_target, mini_batch_size, aux_loss)
-        error_logs.append(n)
-        print("Iteration: "+ str(i + 1) + ", Test errors: " + str(n) + "Test error rate: " + str((n * 100 / n)) + "%")
-        
-    print(f"Mean of test errors over %d runs: %f" % (nbr_runs, statistics.mean(error_logs)))
-    print(f"Standard deviation of test errors over %d runs: %f" % (nbr_runs, statistics.stdev(error_logs)))
-    print(f"Average training time: %f sec" % (statistics.mean(runtimes)))
-
-# DEFINE MODELS TO TEST
-
-model = SIAMESE_CNN_AUX(act = "leaky")
-run_model(model, aux_loss=True, opt="SGD", nbr_runs=10)
-
-
-for i in range(10):
+runtimes = []
+error_logs = []
+nbr_runs = 10
+for i in range(nbr_runs):
     aux_loss = True
     model = SIAMESE_CNN_AUX(act = "leaky")
+    # Generate new data at each iteration
+    train_input, train_target, train_classes, test_input, \
+    test_target, test_classes = generate_pair_sets(1000)
+    
+    # Train model
     start_time = time.time()
     train_model(model, train_input, train_target, train_classes, mini_batch_size, aux_loss, opt = "Adam")
-    print("training time: " + str(time.time() - start_time))
-    n = compute_nb_errors(model, test_input, test_target, mini_batch_size, aux_loss)
-    print("interation: "+ str(i) + " nb errors: " + str(n)) 
-
+    runtime = time.time() - start_time
+    runtimes.append(runtime)
+    print("Iteration " + str(i + 1) + ": Training time: " + str(runtime))
+    
+    # Evaluate model
+    nbr_errors = compute_nb_errors(model, test_input, test_target, mini_batch_size, aux_loss)
+    error_logs.append(nbr_errors)
+    print("Test errors: " + str(nbr_errors) + ", Test error rate: " + str((nbr_errors * 100 / 1000)) + "%")
+    
+print("\n==================") 
+print(f"Mean of test errors over %d runs: %f" % (nbr_runs, statistics.mean(error_logs)))
+print(f"Standard deviation of test errors over %d runs: %f" % (nbr_runs, statistics.stdev(error_logs)))
+print(f"Average training time: %f sec" % (statistics.mean(runtimes)))
+print("==================\n") 
